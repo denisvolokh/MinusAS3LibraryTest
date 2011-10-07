@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   width="800" height="600"
+			   creationComplete="creationCompleteHandler(event)">
+	
+	<mx:Accordion left="10" top="10" bottom="10" width="300">
+		<mx:VBox label="Login" 
+				 width="100%"
+				 height="100%">
+			<s:Form>
+				<s:FormItem label="Username:">
+					<s:TextInput id="inputUsername"/>
+				</s:FormItem>
+				<s:FormItem label="Password:">
+					<s:TextInput id="inputPassword"
+								 displayAsPassword="true"/>
+				</s:FormItem>
+				<s:FormItem >
+					<s:Button label="Sign In"/>
+				</s:FormItem>
+			</s:Form>
+		</mx:VBox>
+		
+		<mx:VBox label="User Info"
+				 verticalGap="25">
+			<s:Form>
+				<s:FormItem label="Active User">
+					<s:Button label="Get"/>
+				</s:FormItem>
+				<s:FormItem label="Another User:">
+					<s:TextInput id="inputUser"/>
+					<s:Button label="Get"/>
+				</s:FormItem>
+			</s:Form>
+		</mx:VBox>
+		<mx:VBox label="Folders"
+				 verticalGap="25">
+			<s:Form>
+				<s:FormItem label="User's ID">
+					<s:TextInput id="inputFolderSlug"/>
+				</s:FormItem>
+				<s:FormItem>
+					<s:Button label="Get"/>
+				</s:FormItem>
+			</s:Form>
+		</mx:VBox>
+		<mx:VBox label="Files in Folder"
+				 verticalGap="25">
+			<s:Form>
+				<s:FormItem label="Folders's ID">
+					<s:TextInput/>
+				</s:FormItem>
+				<s:FormItem label="User's ID">
+					<s:TextInput />
+				</s:FormItem>
+				<s:FormItem>
+					<s:Button label="Get"/>
+				</s:FormItem>
+			</s:Form>
+		</mx:VBox>
+	</mx:Accordion>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import sg.denisvolokh.minus.MinusClient;
+			import sg.denisvolokh.minus.MinusEvent;
+			import sg.denisvolokh.minus.models.MinusFolderInfo;
+			
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				var minusClient : MinusClient = new MinusClient("cabb088734f5467c64218bfcb3728f", "388907659572246fe4c04954a1da20");
+				var folders : Array;
+				
+				
+				minusClient.addEventListener(MinusEvent.TOKEN_RESULT, function(event : MinusEvent):void
+				{
+					minusClient.getFolders("barmaleikin");
+					var file : FileReference = new FileReference();
+					file.addEventListener(Event.SELECT, function(event : *):void
+					{
+						file.load()	
+					});
+					file.addEventListener(Event.COMPLETE, function(event : *):void
+					{
+						minusClient.uploadFile("bjOzyW1Xa",file.name, file.data, "testFile");
+					});
+					file.browse();
+					
+				});
+				
+				minusClient.addEventListener(MinusEvent.GET_FOLDERS_RESULT, function(event : MinusEvent):void
+				{
+					minusClient.getFilesInFolder((event.result[0] as MinusFolderInfo).id);
+				});
+				
+				minusClient.getToken("barmaleikin", "den20001");
+				
+			}
+			
+		]]>
+	</fx:Script>
+</s:Application>
